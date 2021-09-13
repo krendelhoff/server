@@ -24,13 +24,17 @@ dependencies:
 - relude
 - servant
 - servant-server
+- hasql
 - hasql-th
+- hasql-pool
 - mtl
 - text
 - bytestring
 - aeson
+- vector
 - time
 - configurator
+- monad-logger
 - wai
 - warp
 

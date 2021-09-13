@@ -6,3 +6,4 @@ report.html
 *.cabal
 *.lock
 .DS_Store
+script.sh

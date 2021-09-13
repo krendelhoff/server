@@ -12,7 +12,7 @@ import           Relude
 import           Servant.API
 
 type UserAPI
-   = "users" :> (Get '[ JSON] [User] :<|> QueryParam "username" Text :> Post '[ JSON] User)
+   = "users" :> (Get '[ JSON] [User] :<|> QueryParam "username" Text :> Post '[ JSON] ())
 
 type API = UserAPI
 
@@ -21,7 +21,7 @@ api = Proxy
 
 data User =
   User
-    { user_id  :: Int
+    { user_id  :: Int64
     , username :: Text
     }
   deriving (Generic, ToJSON, FromJSON)
