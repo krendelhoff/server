@@ -23,12 +23,16 @@ dependencies:
 - base
 - relude
 - servant
+- servant-server
 - hasql-th
 - mtl
 - text
 - bytestring
+- aeson
 - time
 - configurator
+- wai
+- warp
 
 default-extensions:
 - OverloadedStrings

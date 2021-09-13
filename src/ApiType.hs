@@ -5,17 +5,16 @@ module ApiType
   , Tool(..)
   ) where
 
-import           Data.Time   (Day)
+import           Data.Aeson
+import           Data.Time    (Day)
+import           GHC.Generics
 import           Relude
 import           Servant.API
 
 type UserAPI
    = "users" :> (Get '[ JSON] [User] :<|> QueryParam "username" Text :> Post '[ JSON] User)
 
-type ToolAPI
-   = "tools" :> (Get '[ JSON] [Tool] :<|> QueryParam "name" Text :> QueryParam "desc" Text :> Post '[ JSON] Tool)
-
-type API = UserAPI :<|> ToolAPI
+type API = UserAPI
 
 api :: Proxy API
 api = Proxy
@@ -25,6 +24,7 @@ data User =
     { user_id  :: Int
     , username :: Text
     }
+  deriving (Generic, ToJSON, FromJSON)
 
 data Tool =
   Tool
