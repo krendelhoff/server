@@ -20,7 +20,35 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/githubuser/server#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+- base
+- relude
+- servant
+- hasql-th
+- mtl
+- text
+- bytestring
+- time
+- configurator
+
+default-extensions:
+- OverloadedStrings
+- DeriveGeneric
+- DuplicateRecordFields
+- FlexibleInstances
+- FlexibleContexts
+- NamedFieldPuns
+- GeneralizedNewtypeDeriving
+- RecordWildCards
+- NoImplicitPrelude
+- RankNTypes
+- DeriveAnyClass
+- StandaloneDeriving
+- LambdaCase
+- TupleSections
+- TemplateHaskell
+- QuasiQuotes
+- DataKinds
+- TypeOperators
 
 library:
   source-dirs: src

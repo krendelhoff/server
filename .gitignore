@@ -1,0 +1,8 @@
+.stack-work/
+*~
+.vscode
+.history
+report.html
+*.cabal
+*.lock
+.DS_Store
