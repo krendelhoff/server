@@ -1,5 +1,6 @@
 module Main where
 
+import           Control.Exception        (bracket)
 import qualified Hasql.Connection         as Conn
 import           Hasql.Pool               (Pool, use)
 import qualified Hasql.Pool               as Pool
@@ -45,8 +46,9 @@ server pool = getUsersH :<|> addUserH
 app :: Pool -> Application
 app = serve api . server
 
+withPool :: Pool.Settings -> (Pool -> IO ()) -> IO ()
+withPool settings = bracket (Pool.acquire settings) Pool.release
+
 main :: IO ()
 main = do
-  pool <- Pool.acquire poolSettings
-  run 8080 $ app pool
-  Pool.release pool
+  withPool poolSettings $ run 8080 . app
