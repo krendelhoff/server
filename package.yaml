@@ -33,7 +33,7 @@ dependencies:
 - aeson
 - vector
 - time
-- configurator
+- dhall
 - monad-logger
 - wai
 - warp
