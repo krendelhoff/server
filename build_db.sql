@@ -1,29 +1,29 @@
-DROP TABLE IF EXISTS checkedout;
-DROP TABLE IF EXISTS tools;
-DROP TABLE IF EXISTS users;
+drop table if exists checkedout;
+drop table if exists tools;
+drop table if exists users;
 
-CREATE TABLE users (
-       id serial PRIMARY KEY,
-       username TEXT
+create table users (
+       user_id serial primary key,
+       username text
        );
 
-CREATE TABLE tools (
-       id serial PRIMARY KEY,
-       name TEXT,
-       description TEXT,
-       lastReturned TEXT,
-       timesBorrowed INTEGER
+create table tools (
+       tool_id serial primary key,
+       name text,
+       description text,
+       lastTouched date,
+       timesBorrowed integer
        );
 
-CREATE TABLE checkedout (
-       user_id INTEGER,
-       tool_id INTEGER
+create table checkedout (
+       user_id integer,
+       tool_id integer
        );
 
-INSERT INTO users (username) VALUES ('willkurt');
+insert into users (username) values ('willkurt');
 
-INSERT INTO tools (name,description,lastReturned,timesBorrowed)
-VALUES ('hammer','hits stuff','2017-01-01',0);
+insert into tools (name,description,lastTouched,timesBorrowed)
+values ('hammer','hits stuff','2017-01-01',0);
 
-INSERT INTO tools (name,description,lastReturned,timesBorrowed)
-VALUES ('saw','cuts stuff','2017-01-01',0);
+insert into tools (name,description,lastTouched,timesBorrowed)
+values ('saw','cuts stuff','2017-01-01',0);

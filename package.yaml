@@ -45,7 +45,7 @@ default-extensions:
 - FlexibleInstances
 - FlexibleContexts
 - NamedFieldPuns
-- GeneralizedNewtypeDeriving
+#- GeneralizedNewtypeDeriving
 - RecordWildCards
 - NoImplicitPrelude
 - RankNTypes

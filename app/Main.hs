@@ -1,6 +1,5 @@
 module Main where
 
-import           Control.Exception        (bracket)
 import qualified Hasql.Connection         as Conn
 import           Hasql.Pool               (Pool, use)
 import qualified Hasql.Pool               as Pool
@@ -20,17 +19,18 @@ poolSettings :: Pool.Settings
 poolSettings = (10, 5, connSettings)
 
 server :: Pool -> Server API
-server pool = getUsersH :<|> addUserH
+server pool = (getUsersH :<|> addUserH) :<|> (getToolsH :<|> addToolH)
   where
-    getUsersH = runReaderT getUser pool
+    getUsersH = runReaderT getUsers pool
     addUserH Nothing         = throwError err400
     addUserH (Just username) = runReaderT (addUser username) pool
+    getToolsH = runReaderT getTools pool
+    addToolH Nothing _               = throwError err400
+    addToolH _ Nothing               = throwError err400
+    addToolH (Just name) (Just desc) = runReaderT (addTool name desc) pool
 
 app :: Pool -> Application
 app = serve api . server
-
-withPool :: Pool.Settings -> (Pool -> IO ()) -> IO ()
-withPool settings = bracket (Pool.acquire settings) Pool.release
 
 main :: IO ()
 main = do
