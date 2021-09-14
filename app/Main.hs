@@ -19,7 +19,9 @@ poolSettings :: Pool.Settings
 poolSettings = (10, 5, connSettings)
 
 server :: Pool -> Server API
-server pool = (getUsersH :<|> addUserH) :<|> (getToolsH :<|> addToolH)
+server pool =
+  (getUsersH :<|> addUserH) :<|> (getToolsH :<|> addToolH) :<|>
+  (checkoutH :<|> checkinH :<|> checkedoutH :<|> checkedinH)
   where
     getUsersH = runReaderT getUsers pool
     addUserH Nothing         = throwError err400
@@ -28,6 +30,12 @@ server pool = (getUsersH :<|> addUserH) :<|> (getToolsH :<|> addToolH)
     addToolH Nothing _               = throwError err400
     addToolH _ Nothing               = throwError err400
     addToolH (Just name) (Just desc) = runReaderT (addTool name desc) pool
+    checkoutH Nothing _             = throwError err400
+    checkoutH _ Nothing             = throwError err400
+    checkoutH (Just uid) (Just tid) = runReaderT (checkout uid tid) pool
+    checkinH id = runReaderT (checkin id) pool
+    checkedoutH = runReaderT getCheckedout pool
+    checkedinH = runReaderT checkedin pool
 
 app :: Pool -> Application
 app = serve api . server

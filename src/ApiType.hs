@@ -4,6 +4,7 @@ module ApiType
   , User(..)
   , Tool(..)
   , Checkedout(..)
+  , CheckedoutEntity(..)
   , Users(..)
   , Tools(..)
   ) where
@@ -21,7 +22,10 @@ type UserAPI
 type ToolAPI
    = "tools" :> (Get '[ JSON] Tools :<|> QueryParam "name" Text :> QueryParam "desc" Text :> Post '[ JSON] NoContent)
 
-type API = UserAPI :<|> ToolAPI
+type CheckedoutAPI
+   = "checkout" :> QueryParam "user_id" Int64 :> QueryParam "tool_id" Int64 :> Post '[ JSON] NoContent :<|> "checkin" :> Capture "tool_id" Int64 :> Delete '[ JSON] NoContent :<|> "checkedout" :> Get '[ JSON] Checkedout :<|> "checkedin" :> Get '[ JSON] Tools
+
+type API = UserAPI :<|> ToolAPI :<|> CheckedoutAPI
 
 api :: Proxy API
 api = Proxy
@@ -55,9 +59,15 @@ newtype Tools =
     }
   deriving (Generic, ToJSON, FromJSON)
 
-data Checkedout =
-  Checkedout
+data CheckedoutEntity =
+  CheckedoutEntity
     { user_id :: Int64
     , tool_id :: Int64
+    }
+  deriving (Generic, ToJSON, FromJSON)
+
+newtype Checkedout =
+  Checkedout
+    { checkedout :: Vector CheckedoutEntity
     }
   deriving (Generic, ToJSON, FromJSON)

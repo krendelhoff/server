@@ -4,6 +4,11 @@ module Database.API
   , withPool
   , addTool
   , getTools
+  , checkin
+  , checkedin
+  , checkedout
+  , checkout
+  , getCheckedout
   ) where
 
 import           Control.Exception (bracket)
@@ -59,6 +64,8 @@ addTool name desc = do
     Left err   -> throwError err417
     Right boob -> return NoContent
 
+filler (tool_id, name, desc, lT, tB) = Tool tool_id name desc lT tB
+
 getTools :: ReaderT Pool Handler Tools
 getTools = do
   pool <- ask
@@ -71,5 +78,105 @@ getTools = do
   case result of
     Left err   -> throwError err500 -- log err
     Right boob -> return $ Tools . fmap filler $ boob
+
+getCheckedout :: ReaderT Pool Handler Checkedout
+getCheckedout = do
+  pool <- ask
+  result <-
+    liftIO $
+    use pool $
+    statement
+      ()
+      [vectorStatement|select user_id :: int8, tool_id :: int8 from checkedout|]
+  case result of
+    Left err   -> throwError err500
+    Right boob -> return $ Checkedout . fmap (uncurry CheckedoutEntity) $ boob
+
+checkout :: Int64 -> Int64 -> ReaderT Pool Handler NoContent
+checkout uid tid = do
+  pool <- ask
+  result <-
+    liftIO $
+    use pool $
+    statement
+      (uid, tid)
+      [resultlessStatement|insert into checkedout (user_id,tool_id) values ($1 :: int8, $2 :: int8)|]
+  case result of
+    Left err   -> throwError err417
+    Right boob -> return NoContent
+
+checkedin :: ReaderT Pool Handler Tools
+checkedin = do
+  pool <- ask
+  result <-
+    liftIO $
+    use pool $
+    statement
+      ()
+      [vectorStatement|select
+                              tool_id :: int8
+                            , name :: text
+                            , description :: text
+                            , lastTouched :: date
+                            , timesBorrowed :: int8
+                       from tools
+                       where tool_id not in (select
+                                                tool_id :: int8
+                                             from checkedout)
+      |]
+  case result of
+    Left err   -> throwError err417
+    Right boob -> return $ Tools . fmap filler $ boob
+
+checkin :: Int64 -> ReaderT Pool Handler NoContent
+checkin id = do
+  inCheckedout <- checkForCheckedout
+  if inCheckedout
+    then mainAction
+    else throwError err400
   where
-    filler (tool_id, name, desc, lT, tB) = Tool tool_id name desc lT tB
+    checkForCheckedout = do
+      pool <- ask
+      result <-
+        liftIO $
+        use pool $
+        statement
+          id
+          [singletonStatement|select count(tool_id) :: int8 from checkedout group by tool_id having tool_id = $1 :: int8|]
+      case result of
+        Left err -> throwError err417
+        Right 0  -> return False
+        _        -> return True
+    mainAction = do
+      pool <- ask
+      result <-
+        liftIO $
+        use pool $
+        statement
+          id
+          [resultlessStatement|delete from checkedout where tool_id = $1 :: int8|]
+      case result of
+        Left err -> throwError err417
+        Right _ -> do
+          result <-
+            liftIO $
+            use pool $
+            statement
+              id
+              [singletonStatement|select timesBorrowed :: int8
+                                  from tools
+                                  where tool_id = $1 :: int8
+              |]
+          case result of
+            Left err -> throwError err417
+            Right tB -> do
+              today <- liftIO $ utctDay <$> getCurrentTime
+              result <-
+                liftIO $
+                use pool $
+                statement
+                  (today, tB + 1, id)
+                  [resultlessStatement|update tools set lastTouched = $1 :: date, timesBorrowed = $2 :: int8 where tool_id = $3 :: int8|]
+              case result of
+                Left err -> throwError err417
+                Right _  -> return NoContent
