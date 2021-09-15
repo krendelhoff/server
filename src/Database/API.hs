@@ -11,10 +11,11 @@ module Database.API
   , getCheckedout
   ) where
 
-import           Control.Exception (bracket)
-import           Data.Time         (getCurrentTime, utctDay)
-import           Hasql.Pool        (Pool, Settings, acquire, release, use)
-import           Hasql.Session     (statement)
+import           Control.Exception    (bracket)
+import           Control.Monad.Logger
+import           Data.Time            (getCurrentTime, utctDay)
+import           Hasql.Pool           (Pool, Settings, acquire, release, use)
+import           Hasql.Session        (statement)
 import           Hasql.TH
 import           Relude
 import           Servant
@@ -24,7 +25,7 @@ import           ApiType
 withPool :: Settings -> (Pool -> IO ()) -> IO ()
 withPool settings = bracket (acquire settings) release
 
-getUsers :: ReaderT Pool Handler Users
+getUsers :: LoggingT (ReaderT Pool Handler) Users
 getUsers = do
   pool <- ask
   result <-
@@ -34,7 +35,7 @@ getUsers = do
       ()
       [vectorStatement|select user_id :: int8, username :: text from users|]
   case result of
-    Left err   -> throwError err500
+    Left err   -> $logError "Can't get users error" >> throwError err500
     Right boob -> return $ Users . fmap (uncurry User) $ boob
 
 addUser :: Text -> ReaderT Pool Handler NoContent
@@ -128,7 +129,7 @@ checkedin = do
     Left err   -> throwError err417
     Right boob -> return $ Tools . fmap filler $ boob
 
-checkin :: Int64 -> ReaderT Pool Handler NoContent
+checkin :: Int64 -> LoggingT (ReaderT Pool Handler) NoContent
 checkin id = do
   inCheckedout <- checkForCheckedout
   if inCheckedout
@@ -148,7 +149,7 @@ checkin id = do
           id
           [singletonStatement|select count(tool_id) :: int8 from checkedout group by tool_id having tool_id = $1 :: int8|]
       case result of
-        Left err -> throwError err417
+        Left err -> $logError "There is no such tool" >> throwError err417
         Right 0  -> return False
         _        -> return True
     deleteToolFromCheckedout = do

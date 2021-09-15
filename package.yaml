@@ -48,6 +48,7 @@ default-extensions:
 - TypeOperators
 - DataKinds
 - FlexibleContexts
+- TemplateHaskell
 
 library:
   source-dirs: src

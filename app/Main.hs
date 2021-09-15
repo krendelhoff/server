@@ -1,5 +1,6 @@
 module Main where
 
+import           Control.Monad.Logger
 import qualified Hasql.Connection         as Conn
 import           Hasql.Pool               (Pool, use)
 import qualified Hasql.Pool               as Pool
@@ -23,7 +24,7 @@ server pool =
   (getUsersH :<|> addUserH) :<|> (getToolsH :<|> addToolH) :<|>
   (checkoutH :<|> checkinH :<|> checkedoutH :<|> checkedinH)
   where
-    getUsersH = runReaderT getUsers pool
+    getUsersH = runReaderT (runStdoutLoggingT getUsers) pool
     addUserH Nothing         = throwError err400
     addUserH (Just username) = runReaderT (addUser username) pool
     getToolsH = runReaderT getTools pool
@@ -33,7 +34,7 @@ server pool =
     checkoutH Nothing _             = throwError err400
     checkoutH _ Nothing             = throwError err400
     checkoutH (Just uid) (Just tid) = runReaderT (checkout uid tid) pool
-    checkinH id = runReaderT (checkin id) pool
+    checkinH id = runReaderT (runStdoutLoggingT $ checkin id) pool
     checkedoutH = runReaderT getCheckedout pool
     checkedinH = runReaderT checkedin pool
 
