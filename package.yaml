@@ -40,23 +40,14 @@ dependencies:
 
 default-extensions:
 - OverloadedStrings
-- DeriveGeneric
 - DuplicateRecordFields
-- FlexibleInstances
-- FlexibleContexts
-- NamedFieldPuns
-#- GeneralizedNewtypeDeriving
-- RecordWildCards
 - NoImplicitPrelude
-- RankNTypes
+- DeriveGeneric
 - DeriveAnyClass
-- StandaloneDeriving
-- LambdaCase
-- TupleSections
-- TemplateHaskell
 - QuasiQuotes
-- DataKinds
 - TypeOperators
+- DataKinds
+- FlexibleContexts
 
 library:
   source-dirs: src
