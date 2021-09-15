@@ -161,7 +161,7 @@ checkin id = do
           [resultlessStatement|delete from checkedout where tool_id = $1 :: int8|]
       case result of
         Left err -> throwError err417
-        Right _  -> selectTool
+        Right _  -> pass
     selectTool = do
       pool <- ask
       result <-
