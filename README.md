@@ -1,4 +1,4 @@
-# echoBot
+# server
 
 ## Table of contents
 * [Introduction](#Introduction)
