@@ -135,6 +135,10 @@ checkin id = do
     then mainAction
     else throwError err400
   where
+    mainAction = do
+      deleteToolFromCheckedout
+      tB <- selectTool
+      updateTool tB
     checkForCheckedout = do
       pool <- ask
       result <-
@@ -147,7 +151,7 @@ checkin id = do
         Left err -> throwError err417
         Right 0  -> return False
         _        -> return True
-    mainAction = do
+    deleteToolFromCheckedout = do
       pool <- ask
       result <-
         liftIO $
@@ -157,26 +161,30 @@ checkin id = do
           [resultlessStatement|delete from checkedout where tool_id = $1 :: int8|]
       case result of
         Left err -> throwError err417
-        Right _ -> do
-          result <-
-            liftIO $
-            use pool $
-            statement
-              id
-              [singletonStatement|select timesBorrowed :: int8
+        Right _  -> selectTool
+    selectTool = do
+      pool <- ask
+      result <-
+        liftIO $
+        use pool $
+        statement
+          id
+          [singletonStatement|select timesBorrowed :: int8
                                   from tools
                                   where tool_id = $1 :: int8
               |]
-          case result of
-            Left err -> throwError err417
-            Right tB -> do
-              today <- liftIO $ utctDay <$> getCurrentTime
-              result <-
-                liftIO $
-                use pool $
-                statement
-                  (today, tB + 1, id)
-                  [resultlessStatement|update tools set lastTouched = $1 :: date, timesBorrowed = $2 :: int8 where tool_id = $3 :: int8|]
-              case result of
-                Left err -> throwError err417
-                Right _  -> return NoContent
+      case result of
+        Left err -> throwError err417
+        Right tB -> return tB
+    updateTool tB = do
+      pool <- ask
+      today <- liftIO $ utctDay <$> getCurrentTime
+      result <-
+        liftIO $
+        use pool $
+        statement
+          (today, tB + 1, id)
+          [resultlessStatement|update tools set lastTouched = $1 :: date, timesBorrowed = $2 :: int8 where tool_id = $3 :: int8|]
+      case result of
+        Left err -> throwError err417
+        Right _  -> return NoContent
