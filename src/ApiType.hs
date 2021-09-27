@@ -17,15 +17,35 @@ import           Relude
 import           Servant.API
 
 type UserAPI
-   = "users" :> (Get '[ JSON] Users :<|> QueryParam "username" Text :> Post '[ JSON] NoContent)
+   = "users"
+     :> (Get '[ JSON] Users
+         :<|> QueryParam "username" Text
+         :> Post '[ JSON] NoContent)
 
 type ToolAPI
-   = "tools" :> (Get '[ JSON] Tools :<|> QueryParam "name" Text :> QueryParam "desc" Text :> Post '[ JSON] NoContent)
+   = "tools"
+     :> (Get '[ JSON] Tools
+         :<|> QueryParam "name" Text
+         :> QueryParam "desc" Text
+         :> Post '[ JSON] NoContent)
 
 type CheckedoutAPI
-   = "checkout" :> QueryParam "user_id" Int64 :> QueryParam "tool_id" Int64 :> Post '[ JSON] NoContent :<|> "checkin" :> Capture "tool_id" Int64 :> Delete '[ JSON] NoContent :<|> "checkedout" :> Get '[ JSON] Checkedout :<|> "checkedin" :> Get '[ JSON] Tools
+   = "checkout"
+     :> QueryParam "user_id" Int64
+     :> QueryParam "tool_id" Int64
+     :> Post '[ JSON] NoContent
+     :<|> "checkin"
+     :> Capture "tool_id" Int64
+     :> Delete '[ JSON] NoContent
+     :<|> "checkedout"
+     :> Get '[ JSON] Checkedout
+     :<|> "checkedin"
+     :> Get '[ JSON] Tools
 
-type API = UserAPI :<|> ToolAPI :<|> CheckedoutAPI
+type API
+   = UserAPI
+     :<|> ToolAPI
+     :<|> CheckedoutAPI
 
 api :: Proxy API
 api = Proxy

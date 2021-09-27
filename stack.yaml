@@ -22,7 +22,7 @@ extra-deps:
 - hasql-th-0.4.0.9@sha256:56515d8d08d4c68e36899a46624ecd1505608cf6b4c24b5c33aee54bc76e6275,2245
 - postgresql-syntax-0.4@sha256:df8b65a33f4088eddad25cedbec814e5f34f8e8ae55065139b73bd6da0d66f21,4176
 - headed-megaparsec-0.2.0.1@sha256:4bb2f1e68d2972e6b40ede202708c81b2e2fe83c454e439f27f47d1fdf7c8697,1571
-
+- relude-1.0.0.1@sha256:35bcdaf14018e79f11e712b0e2314c1aac79976f28f4adc179985457493557d5,11569
 # User packages to be built.
 # Various formats can be used as shown in the example below.
 #

@@ -21,7 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base
-- relude
+- relude >= 1.0.0.1
 - servant
 - servant-server
 - hasql
@@ -37,6 +37,7 @@ dependencies:
 - monad-logger
 - wai
 - warp
+- extra
 
 default-extensions:
 - OverloadedStrings
@@ -49,6 +50,8 @@ default-extensions:
 - DataKinds
 - FlexibleContexts
 - TemplateHaskell
+- TypeApplications
+- NoMonomorphismRestriction
 
 library:
   source-dirs: src

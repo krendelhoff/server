@@ -1,5 +1,7 @@
 module Main where
 
+import           Control.Concurrent
+import           Control.Monad.Extra      (whileM)
 import           Control.Monad.Logger
 import qualified Hasql.Connection         as Conn
 import           Hasql.Pool               (Pool, use)
@@ -43,4 +45,10 @@ app = serve api . server
 
 main :: IO ()
 main = do
-  withPool poolSettings $ run 8080 . app
+  withPool poolSettings $ \pool -> do
+    tid <- forkIO $ run 8080 . app $ pool
+    whileM $ do
+      s <- getLine
+      case s of
+        "exit" -> killThread tid >> return False
+        _      -> return True
